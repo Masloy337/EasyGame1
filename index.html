@@ -577,11 +577,11 @@
 
         // Отправка данных
         function triggerAction(actionData) {
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                tg.sendData(actionData);
-            } else {
-                alert(`[РЕЖИМ БРАУЗЕРА] В Telegram это действие отправит боту команду: ${actionData}`);
-            }
+            // 1. Инициализируем объект Telegram
+            const tg = window.Telegram.WebApp;
+
+            // 2. Отправляем данные боту (это закроет окно и пришлет сообщение боту)
+            tg.sendData(actionData);
         }
     </script>
 </body>
