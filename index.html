@@ -1,0 +1,588 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EASY GAME | Локальная Арена</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Подключаем новые, отлично читаемые шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Russo+One&display=swap" rel="stylesheet">
+
+    <style>
+        /* === ПЕРЕМЕННЫЕ === */
+        :root {
+            --bg: #070709;
+            --fg: #ffffff;
+            --text-muted: #a0a0b0;
+            --neon-pink: #ff0055;
+            --neon-blue: #00e5ff;
+            --neon-purple: #8a2be2;
+            --card-bg: #121216;
+            --card-hover: #1a1a20;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            /* Добавляем легкую фоновую сетку, чтобы убрать эффект пустоты */
+            background-image: linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            color: var(--fg);
+            font-family: 'Montserrat', sans-serif; /* Отлично читаемый шрифт */
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .heading-font {
+            font-family: 'Russo One', sans-serif; /* Мощный игровой шрифт */
+            letter-spacing: 1px;
+            font-weight: normal;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            max-width: 1200px; /* Расширили для десктопа */
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* === ШАПКА === */
+        header {
+            padding: 15px 0;
+            border-bottom: 2px solid rgba(0, 229, 255, 0.3);
+            background: rgba(7, 7, 9, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* ВАШ РЕАЛЬНЫЙ ЛОГОТИП */
+        .logo-img {
+            height: 60px; /* Размер логотипа */
+            width: auto;
+            border-radius: 50%; /* Скругляем, если картинка квадратная */
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        nav ul {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+            font-weight: 500;
+        }
+
+        nav a {
+            transition: color 0.3s;
+        }
+
+            nav a:hover {
+                color: var(--neon-blue);
+            }
+
+        /* === ГЕРОЙ === */
+        #hero {
+            padding: 80px 0;
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(138, 43, 226, 0.1) 0%, transparent 60%);
+        }
+
+        h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            color: var(--fg);
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .primary-btn {
+            background: var(--neon-pink);
+            color: #fff;
+            border: none;
+            padding: 18px 40px;
+            font-family: 'Russo One', sans-serif;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+            border-radius: 4px;
+        }
+
+            .primary-btn:hover {
+                box-shadow: 0 0 30px rgba(255, 0, 85, 0.7);
+                transform: translateY(-2px);
+            }
+
+        /* === БЕГУЩАЯ СТРОКА (АКЦИИ) === */
+        .marquee-wrapper {
+            overflow: hidden;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 0;
+            background: rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+        }
+
+        .marquee {
+            display: inline-block;
+            animation: marquee 25s linear infinite;
+            font-weight: 500;
+            color: var(--neon-blue);
+        }
+
+            .marquee span {
+                margin-right: 60px;
+            }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* === СЕКЦИИ БАЗА === */
+        section {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            font-size: 28px;
+            margin-bottom: 40px;
+            text-align: center;
+            color: var(--fg);
+            position: relative;
+        }
+
+        /* === ТАРИФЫ === */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 2px solid rgba(0, 229, 255, 0.2);
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 4px;
+                height: 100%;
+                background: var(--neon-blue);
+                transition: width 0.3s;
+            }
+
+            .card:hover {
+                background: var(--card-hover);
+                border-color: var(--neon-blue);
+                box-shadow: 0 10px 30px rgba(0, 229, 255, 0.1);
+                transform: translateY(-5px);
+            }
+
+                .card:hover::before {
+                    width: 8px;
+                }
+
+            .card h3 {
+                font-size: 20px;
+                margin-bottom: 12px;
+                padding-left: 15px;
+            }
+
+            .card p {
+                color: var(--text-muted);
+                font-size: 14px;
+                padding-left: 15px;
+                line-height: 1.5;
+            }
+
+            .card.lounge {
+                grid-column: 1 / -1;
+                border-color: rgba(255, 0, 85, 0.3);
+                background: linear-gradient(135deg, var(--card-bg) 0%, #1a0b12 100%);
+            }
+
+                .card.lounge::before {
+                    background: var(--neon-pink);
+                }
+
+                .card.lounge:hover {
+                    border-color: var(--neon-pink);
+                    box-shadow: 0 10px 30px rgba(255, 0, 85, 0.15);
+                }
+
+        /* === ПРАВИЛА === */
+        .rules-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .rules-col {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+            .rules-col h3 {
+                text-align: center;
+                margin-bottom: 25px;
+                font-size: 22px;
+                color: var(--fg);
+            }
+
+        .rules-list {
+            list-style: none;
+        }
+
+            .rules-list li {
+                margin-bottom: 15px;
+                padding-left: 25px;
+                position: relative;
+                font-size: 14px;
+                color: var(--text-muted);
+            }
+
+                .rules-list li::before {
+                    content: '>';
+                    position: absolute;
+                    left: 0;
+                    font-family: 'Russo One';
+                    color: var(--neon-blue);
+                    font-size: 16px;
+                    top: 0px;
+                }
+
+        .rule-deny li {
+            text-decoration: line-through;
+            text-decoration-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .rule-deny h3 {
+            color: var(--neon-pink);
+        }
+
+        /* === БОТ И МЕНЮ === */
+        .bot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 8px;
+            border-top: 4px solid var(--neon-purple);
+        }
+
+        .bot-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+            .bot-list li {
+                margin-bottom: 15px;
+                padding-left: 30px;
+                position: relative;
+                font-size: 14px;
+                color: var(--text-muted);
+            }
+
+                .bot-list li::before {
+                    content: '✓';
+                    position: absolute;
+                    left: 0;
+                    color: var(--neon-purple);
+                    font-weight: bold;
+                    font-size: 16px;
+                }
+
+        /* ИНВЕНТАРЬ (МЕНЮ) */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .slot {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 20px 10px;
+            text-align: center;
+        }
+
+            .slot:hover {
+                border-color: var(--neon-blue);
+                background: rgba(0, 229, 255, 0.05);
+                transform: scale(1.05);
+            }
+
+        .slot-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .slot-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--fg);
+        }
+
+        /* === ФУТЕР === */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* === ПЛАВАЮЩИЙ PING === */
+        #ping {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-family: 'Russo One', sans-serif;
+            font-size: 12px;
+            color: var(--neon-blue);
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 32px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            nav ul {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <!-- ЗДЕСЬ ДОЛЖЕН БЫТЬ ВАШ ЛОГОТИП -->
+            <!-- Сохраните ваш логотип как logo.png в ту же папку, где лежит этот сайт -->
+            <img src="logo.png" alt="EASY GAME Logo" class="logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <!-- Заглушка, если картинка не найдена -->
+            <div style="display:none; font-family: 'Russo One'; font-size: 24px;">EASY<span style="color:var(--neon-blue)">GAME</span></div>
+
+            <nav>
+                <ul>
+                    <li><a href="#tariffs">ПАКЕТЫ</a></li>
+                    <li><a href="#rules">ПРАВИЛА</a></li>
+                    <li><a href="#bot-menu">ЗАКАЗАТЬ СНЕКИ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="hero">
+        <div class="container">
+            <h1><span id="user-greeting">ДРУГ</span>, ДОБРО ПОЖАЛОВАТЬ<br>НА ТВОЮ ЛОКАЛЬНУЮ АРЕНУ</h1>
+            <p class="subtitle">EASY GAME CYBER SPORT ARENA. Мы автоматизировали рутину, чтобы ничто не отвлекало от игры.</p>
+            <button class="primary-btn" onclick="triggerAction('book_pcs')">ЗАБРОНИРОВАТЬ ПК</button>
+        </div>
+    </section>
+
+    <div class="marquee-wrapper">
+        <div class="marquee">
+            <span>[ АКТИВНЫЕ БАФФЫ ]</span>
+            <span>🔥 ДЕНЬ РОЖДЕНИЯ: 18+ пакет 10ч / 5ч (действует ±3 дня)</span>
+            <span>⚡ ЭНЕРГЕТИК: банка в подарок при покупке ночи</span>
+            <span>🎓 ШКОЛА/СТУДЕНТ: особые условия Пн-Чт 8:00-17:00</span>
+            <span>🎰 КОЛЕСО ФОРТУНЫ: пополни баланс - получи шанс выиграть призы!</span>
+        </div>
+    </div>
+
+    <section id="tariffs">
+        <div class="container">
+            <h2 class="section-title">ВЫБЕРИТЕ ПАКЕТНОЕ ПРЕДЛОЖЕНИЕ</h2>
+            <div class="cards-grid">
+                <div class="card" onclick="triggerAction('book_hourly')">
+                    <h3>ПОЧАСОВАЯ ОПЛАТА</h3>
+                    <p>Интервалы: 8:00 - 17:00 / 17:00 - 8:00<br>Доступно в будние и выходные дни.</p>
+                </div>
+
+                <div class="card" onclick="triggerAction('book_3hours')">
+                    <h3>ПАКЕТ 3 ЧАСА</h3>
+                    <p>Будни (8:00 - 19:00)<br>Выходные (круглосуточно)</p>
+                </div>
+
+                <div class="card" onclick="triggerAction('book_5hours')">
+                    <h3>ПАКЕТ 5 ЧАСОВ</h3>
+                    <p>Будни (8:00 - 17:00)<br>Выходные (круглосуточно)</p>
+                </div>
+
+                <div class="card" onclick="triggerAction('book_night')">
+                    <h3>ПАКЕТ "НОЧЬ" (10 ЧАСОВ)</h3>
+                    <p>Ежедневно с 22:00 до 8:00<br>Идеально для долгих каток.</p>
+                </div>
+
+                <div class="card lounge" onclick="triggerAction('book_lounge')">
+                    <h3>ЗАЛ LOUNGE</h3>
+                    <p>Комфортная зона до 4х игроков. TV + Console. Возможна аренда дополнительного геймпада.<br><br><strong>[ НАЖМИТЕ ДЛЯ БРОНИРОВАНИЯ ]</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="rules">
+        <div class="container">
+            <h2 class="section-title">ПРАВИЛА АРЕНЫ</h2>
+            <div class="rules-container">
+                <div class="rules-col">
+                    <h3>РАЗРЕШАЕТСЯ</h3>
+                    <ul class="rules-list">
+                        <li>Заранее бронировать места. Внимание: бронь автоматически снимается ботом при опоздании на 20 минут.</li>
+                        <li>Переносить оставшееся время на другой ПК, если в зале есть свободные машины.</li>
+                        <li>Обращаться к администратору за помощью в настройке девайсов или установке нужного ПО.</li>
+                    </ul>
+                </div>
+                <div class="rules-col rule-deny">
+                    <h3>ЗАПРЕЩАЕТСЯ</h3>
+                    <ul class="rules-list">
+                        <li>Проносить в клуб свою еду и напитки.</li>
+                        <li>Использовать любые электронные сигареты (вейпы, IQOS) в помещении.</li>
+                        <li>Запускать читы, скрипты и любое хакерское ПО.</li>
+                        <li>Находиться в верхней одежде или сидеть вдвоем за одним столом.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="bot-menu">
+        <div class="container bot-grid">
+            <div>
+                <h2 class="heading-font" style="font-size: 24px; margin-bottom: 20px;">СЕРВИС ЧЕРЕЗ TELEGRAM</h2>
+                <ul class="bot-list">
+                    <li>Система автоматически снимает бронь при неявке.</li>
+                    <li>Пароль от ПК и Wi-Fi выдаются прямо в чат.</li>
+                    <li>Заказывайте напитки и снеки не вставая с кресла.</li>
+                    <li>Администратор мгновенно получает ваши запросы на планшет.</li>
+                </ul>
+            </div>
+            <div>
+                <h2 class="heading-font" style="font-size: 20px; margin-bottom: 10px; color: var(--neon-blue);">МЕНЮ СНЕКОВ</h2>
+                <p style="color: var(--text-muted); font-size: 12px;">Кликните на товар, чтобы курьер (Админ) принес его к вашему ПК. Оплата производится на месте.</p>
+                <div class="inventory-grid">
+                    <div class="slot" onclick="triggerAction('order_snickers')">
+                        <div class="slot-icon">🍫</div>
+                        <div class="slot-name">SNICKERS</div>
+                    </div>
+                    <div class="slot" onclick="triggerAction('order_twix')">
+                        <div class="slot-icon">🍪</div>
+                        <div class="slot-name">TWIX</div>
+                    </div>
+                    <div class="slot" onclick="triggerAction('order_bounty')">
+                        <div class="slot-icon">🥥</div>
+                        <div class="slot-name">BOUNTY</div>
+                    </div>
+                    <div class="slot" onclick="triggerAction('order_mms')">
+                        <div class="slot-icon">🔴</div>
+                        <div class="slot-name">M&M's</div>
+                    </div>
+                    <div class="slot" onclick="triggerAction('order_nuts')">
+                        <div class="slot-icon">🌰</div>
+                        <div class="slot-name">NUTS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <h3 style="font-size: 16px; margin-bottom: 10px; color: var(--fg);">EASY GAME CYBER SPORT ARENA</h3>
+            <p>demo@easygame.local</p>
+        </div>
+    </footer>
+
+    <div id="ping">PING: 15 ms</div>
+
+    <script>
+        // Инициализация TG Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        window.onload = () => {
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                const userName = tg.initDataUnsafe.user.first_name.toUpperCase();
+                document.getElementById('user-greeting').innerText = userName;
+            }
+        };
+
+        // Пинг
+        setInterval(() => {
+            document.getElementById('ping').innerText = `PING: ${Math.floor(Math.random() * 15 + 10)} ms`;
+        }, 3000);
+
+        // Отправка данных
+        function triggerAction(actionData) {
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                tg.sendData(actionData);
+            } else {
+                alert(`[РЕЖИМ БРАУЗЕРА] В Telegram это действие отправит боту команду: ${actionData}`);
+            }
+        }
+    </script>
+</body>
+</html>
